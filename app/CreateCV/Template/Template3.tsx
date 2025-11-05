@@ -1,5 +1,6 @@
 import React, { forwardRef, useRef } from "react";
 import Draggable from "react-draggable";
+import Image from "next/image";
 
 interface Props {
   profile: {
@@ -26,8 +27,20 @@ const TemplateDraggable = forwardRef<HTMLDivElement, Props>(({ profile, contents
     <div ref={ref} className="relative w-[210mm] h-[297mm] bg-white shadow-lg border">
       {/* Foto */}
       <Draggable nodeRef={photoRef}>
-        <div ref={photoRef} className="absolute top-10 left-10 w-32 h-32 border rounded-full overflow-hidden">
-          <img src={profile.photo || "https://via.placeholder.com/150"} alt="Profile" className="w-full h-full object-cover" />
+        <div ref={photoRef} className="absolute top-10 left-10 w-32 h-32 border rounded-full overflow-hidden relative">
+          {profile.photo ? (
+            <Image
+              src={profile.photo}
+              alt="Profile"
+              fill
+              className="object-cover"
+              sizes="128px"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
+              Foto
+            </div>
+          )}
         </div>
       </Draggable>
 
@@ -68,18 +81,21 @@ const TemplateDraggable = forwardRef<HTMLDivElement, Props>(({ profile, contents
       </Draggable>
 
       {/* Contents */}
-      {contents.map((c, i) => (
-        <Draggable key={i}>
-          <div className={`absolute left-10 top-[${450 + i * 120}px] bg-gray-100 p-3 rounded w-[300px]`}>
-            <h3 className="font-bold mb-1">{c.title}</h3>
-            <ul className="list-disc pl-4">
-              {c.items.map((item, j) => (
-                <li key={j}>{item}</li>
-              ))}
-            </ul>
-          </div>
-        </Draggable>
-      ))}
+      {contents.map((c, i) => {
+        const topPx = 450 + i * 120; // hitung posisi top secara JS
+        return (
+          <Draggable key={i}>
+            <div style={{ top: `${topPx}px`, left: "10px" }} className="absolute bg-gray-100 p-3 rounded w-[300px]">
+              <h3 className="font-bold mb-1">{c.title}</h3>
+              <ul className="list-disc pl-4">
+                {c.items.map((item, j) => (
+                  <li key={j}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </Draggable>
+        );
+      })}
     </div>
   );
 });

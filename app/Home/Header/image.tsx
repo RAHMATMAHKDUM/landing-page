@@ -14,7 +14,7 @@ export default function HeaderImage() {
           alt="CV Document"
           width={cvWidth}
           height={cvHeight}
-          className="rounded-lg drop-shadow-2xl"
+          className="rounded-lg drop-shadow-2xl -mt-30"
         />
 
         
@@ -27,14 +27,14 @@ export default function HeaderImage() {
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute bottom-[-20px]"
+          className="absolute bottom-[--1px]"
         >
           <Image
             src="/kaca.png"
             alt="Magnifier"
             width={180}
             height={180}
-            className="drop-shadow-xl"
+            className="drop-shadow-xl "
           />
         </motion.div>
       </div>

@@ -1,4 +1,5 @@
 import React, { forwardRef } from "react";
+import Image from "next/image";
 
 interface Props {
   profile: {
@@ -17,11 +18,15 @@ const Template1 = forwardRef<HTMLDivElement, Props>(({ profile, contents }, ref)
     <div ref={ref} className="w-[180mm] min-h-[267mm] bg-white p-8 shadow-md">
       <div className="flex items-center gap-4 border-b pb-4 mb-6">
         {profile.photo ? (
-          <img
-            src={profile.photo}
-            alt="Foto Profil"
-            className="w-24 h-24 object-cover rounded-full border"
-          />
+          <div className="w-24 h-24 relative rounded-full border overflow-hidden">
+            <Image
+              src={profile.photo}
+              alt="Foto Profil"
+              fill
+              className="object-cover"
+              sizes="96px"
+            />
+          </div>
         ) : (
           <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
             Foto
@@ -30,7 +35,7 @@ const Template1 = forwardRef<HTMLDivElement, Props>(({ profile, contents }, ref)
         <div>
           <h1 className="text-3xl font-bold">{profile.name || "Nama Lengkap"}</h1>
           <p className="text-gray-500 text-sm">
-            {profile.email || "email@example.com"} | {profile.phone || "08xxxxxxxx" } | {profile.address || "Alamat"}
+            {profile.email || "email@example.com"} | {profile.phone || "08xxxxxxxx"} | {profile.address || "Alamat"}
           </p>
         </div>
       </div>

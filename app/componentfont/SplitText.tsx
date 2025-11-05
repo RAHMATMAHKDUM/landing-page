@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText as GSAPSplitText } from 'gsap/SplitText';
 import { useGSAP } from '@gsap/react';
 
-gsap.registerPlugin(ScrollTrigger, GSAPSplitText, useGSAP);
+gsap.registerPlugin(ScrollTrigger, GSAPSplitText);
 
 export interface SplitTextProps {
   text: string;
@@ -37,7 +37,7 @@ const SplitText: React.FC<SplitTextProps> = ({
   textAlign = 'center',
   onLetterAnimationComplete
 }) => {
-  const ref = useRef<HTMLParagraphElement>(null);
+  const ref = useRef<HTMLElement>(null);
   const animationCompletedRef = useRef(false);
   const [fontsLoaded, setFontsLoaded] = useState<boolean>(false);
 
@@ -45,23 +45,20 @@ const SplitText: React.FC<SplitTextProps> = ({
     if (document.fonts.status === 'loaded') {
       setFontsLoaded(true);
     } else {
-      document.fonts.ready.then(() => {
-        setFontsLoaded(true);
-      });
+      document.fonts.ready.then(() => setFontsLoaded(true));
     }
   }, []);
 
   useGSAP(
     () => {
       if (!ref.current || !text || !fontsLoaded) return;
-      const el = ref.current as HTMLElement & {
-        _rbsplitInstance?: GSAPSplitText;
-      };
+
+      const el = ref.current as HTMLElement & { _rbsplitInstance?: GSAPSplitText };
 
       if (el._rbsplitInstance) {
         try {
           el._rbsplitInstance.revert();
-        } catch (_) {}
+        } catch {} // ✅ sudah bersih dari warning
         el._rbsplitInstance = undefined;
       }
 
@@ -69,21 +66,17 @@ const SplitText: React.FC<SplitTextProps> = ({
       const marginMatch = /^(-?\d+(?:\.\d+)?)(px|em|rem|%)?$/.exec(rootMargin);
       const marginValue = marginMatch ? parseFloat(marginMatch[1]) : 0;
       const marginUnit = marginMatch ? marginMatch[2] || 'px' : 'px';
-      const sign =
-        marginValue === 0
-          ? ''
-          : marginValue < 0
-            ? `-=${Math.abs(marginValue)}${marginUnit}`
-            : `+=${marginValue}${marginUnit}`;
+      const sign = marginValue === 0 ? '' : marginValue < 0 ? `-=${Math.abs(marginValue)}${marginUnit}` : `+=${marginValue}${marginUnit}`;
       const start = `top ${startPct}%${sign}`;
       let targets: Element[] = [];
+
       const assignTargets = (self: GSAPSplitText) => {
-        if (splitType.includes('chars') && (self as GSAPSplitText).chars?.length)
-          targets = (self as GSAPSplitText).chars;
+        if (splitType.includes('chars') && self.chars?.length) targets = self.chars;
         if (!targets.length && splitType.includes('words') && self.words.length) targets = self.words;
         if (!targets.length && splitType.includes('lines') && self.lines.length) targets = self.lines;
         if (!targets.length) targets = self.chars || self.words || self.lines;
       };
+
       const splitInstance = new GSAPSplitText(el, {
         type: splitType,
         smartWrap: true,
@@ -119,14 +112,16 @@ const SplitText: React.FC<SplitTextProps> = ({
           );
         }
       });
+
       el._rbsplitInstance = splitInstance;
+
       return () => {
         ScrollTrigger.getAll().forEach(st => {
           if (st.trigger === el) st.kill();
         });
         try {
           splitInstance.revert();
-        } catch (_) {}
+        } catch {}
         el._rbsplitInstance = undefined;
       };
     },
@@ -148,58 +143,34 @@ const SplitText: React.FC<SplitTextProps> = ({
     }
   );
 
-  const renderTag = () => {
-    const style: React.CSSProperties = {
-      textAlign,
-      wordWrap: 'break-word',
-      willChange: 'transform, opacity'
-    };
-    const classes = `split-parent overflow-hidden inline-block whitespace-normal ${className}`;
-    switch (tag) {
-      case 'h1':
-        return (
-          <h1 ref={ref} style={style} className={classes}>
-            {text}
-          </h1>
-        );
-      case 'h2':
-        return (
-          <h2 ref={ref} style={style} className={classes}>
-            {text}
-          </h2>
-        );
-      case 'h3':
-        return (
-          <h3 ref={ref} style={style} className={classes}>
-            {text}
-          </h3>
-        );
-      case 'h4':
-        return (
-          <h4 ref={ref} style={style} className={classes}>
-            {text}
-          </h4>
-        );
-      case 'h5':
-        return (
-          <h5 ref={ref} style={style} className={classes}>
-            {text}
-          </h5>
-        );
-      case 'h6':
-        return (
-          <h6 ref={ref} style={style} className={classes}>
-            {text}
-          </h6>
-        );
-      default:
-        return (
-          <p ref={ref} style={style} className={classes}>
-            {text}
-          </p>
-        );
-    }
+
+
+const renderTag = () => {
+  const style: React.CSSProperties = {
+    textAlign,
+    wordWrap: 'break-word',
+    willChange: 'transform, opacity',
   };
+  const classes = `split-parent overflow-hidden inline-block whitespace-normal ${className}`;
+
+  switch (tag) {
+    case 'h1':
+      return React.createElement('h1', { ref: ref, style, className: classes }, text);
+    case 'h2':
+      return React.createElement('h2', { ref: ref, style, className: classes }, text);
+    case 'h3':
+      return React.createElement('h3', { ref: ref, style, className: classes }, text);
+    case 'h4':
+      return React.createElement('h4', { ref: ref, style, className: classes }, text);
+    case 'h5':
+      return React.createElement('h5', { ref: ref, style, className: classes }, text);
+    case 'h6':
+      return React.createElement('h6', { ref: ref, style, className: classes }, text);
+    default:
+      return React.createElement('p', { ref: ref, style, className: classes }, text);
+  }
+};
+
 
   return renderTag();
 };

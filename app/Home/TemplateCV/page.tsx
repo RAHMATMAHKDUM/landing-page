@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function TemplateCV() {
   const router = useRouter();
@@ -24,7 +25,13 @@ export default function TemplateCV() {
             className="border rounded shadow hover:shadow-lg cursor-pointer p-4 text-center"
             onClick={() => handleSelect(t.id)}
           >
-            <img src={t.preview} alt={t.name} className="mb-4 w-full h-48 object-cover" />
+            <Image
+              src={t.preview}
+              alt={t.name}
+              width={300}
+              height={192}
+              className="mb-4 w-full h-48 object-cover"
+            />
             <h2 className="font-semibold">{t.name}</h2>
           </div>
         ))}
